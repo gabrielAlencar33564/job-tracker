@@ -1,24 +1,24 @@
-'use client';
-import { useState, useEffect, useCallback } from 'react';
-import { Company } from '@/types';
-import { getCompanies, createCompany, deleteCompany } from '@/services/api';
-import { Trash2, Globe, Building2, AlertCircle } from 'lucide-react';
-import { ConfirmModal } from '@/components/common/ConfirmModal';
+/* eslint-disable react-hooks/set-state-in-effect */
+"use client";
+import { useState, useEffect, useCallback } from "react";
+import { Company } from "@/types";
+import { CompanyService } from "@/services";
+import { Trash2, Globe, Building2 } from "lucide-react";
+import { ConfirmModal } from "@/components/common/ConfirmModal";
 
 export default function CompaniesPage() {
   const [companies, setCompanies] = useState<Company[]>([]);
-  const [name, setName] = useState('');
-  const [website, setWebsite] = useState('');
+  const [name, setName] = useState("");
+  const [website, setWebsite] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  
-  // Modal state
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [companyToDelete, setCompanyToDelete] = useState<Company | null>(null);
 
   const loadCompanies = useCallback(async () => {
     setLoading(true);
-    const data = await getCompanies();
+    const data = await CompanyService.getCompanies();
     setCompanies(data);
     setLoading(false);
   }, []);
@@ -32,17 +32,17 @@ export default function CompaniesPage() {
     if (!name) return;
 
     setSubmitting(true);
-    const result = await createCompany({ 
-      name, 
-      website: website.trim() || null 
+    const result = await CompanyService.createCompany({
+      name,
+      website: website.trim() || null,
     });
-    
+
     if (result) {
-      setName('');
-      setWebsite('');
+      setName("");
+      setWebsite("");
       await loadCompanies();
     } else {
-      alert('Erro ao cadastrar empresa.');
+      alert("Erro ao cadastrar empresa.");
     }
     setSubmitting(false);
   }
@@ -57,15 +57,15 @@ export default function CompaniesPage() {
 
     // Optimistic Update
     const previousCompanies = [...companies];
-    setCompanies(companies.filter(c => c.id !== companyToDelete.id));
+    setCompanies(companies.filter((c) => c.id !== companyToDelete.id));
 
-    const success = await deleteCompany(companyToDelete.id);
-    
+    const success = await CompanyService.deleteCompany(companyToDelete.id);
+
     if (!success) {
       setCompanies(previousCompanies);
-      alert('Erro ao excluir empresa. Tente novamente.');
+      alert("Erro ao excluir empresa. Tente novamente.");
     }
-    
+
     setCompanyToDelete(null);
   };
 
@@ -76,21 +76,27 @@ export default function CompaniesPage() {
           <Building2 size={32} />
         </div>
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Empresas</h1>
-          <p className="text-slate-500 font-medium">Gerencie seu radar de empresas e oportunidades.</p>
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+            Empresas
+          </h1>
+          <p className="text-slate-500 font-medium">
+            Gerencie seu radar de empresas e oportunidades.
+          </p>
         </div>
       </header>
 
       <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
-        <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-          <PlusIcon size={120} />
-        </div>
         <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
           Cadastrar Nova Empresa
         </h2>
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-12 gap-6 items-end">
+        <form
+          onSubmit={handleSubmit}
+          className="grid grid-cols-1 md:grid-cols-12 gap-6 items-end"
+        >
           <div className="md:col-span-5 space-y-2">
-            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Nome da Organização</label>
+            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">
+              Nome da Organização
+            </label>
             <input
               type="text"
               value={name}
@@ -101,7 +107,9 @@ export default function CompaniesPage() {
             />
           </div>
           <div className="md:col-span-5 space-y-2">
-            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Website Oficial</label>
+            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">
+              Website Oficial
+            </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-300">
                 <Globe size={18} />
@@ -124,7 +132,7 @@ export default function CompaniesPage() {
               {submitting ? (
                 <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
-                'Salvar'
+                "Salvar"
               )}
             </button>
           </div>
@@ -140,39 +148,49 @@ export default function CompaniesPage() {
             </span>
           </h2>
         </div>
-        
+
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-24 bg-slate-100 animate-pulse rounded-2xl border border-slate-200" />
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="h-24 bg-slate-100 animate-pulse rounded-2xl border border-slate-200"
+              />
             ))}
           </div>
         ) : companies.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {companies.map((company) => (
-              <div key={company.id} className="group bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-xl hover:shadow-blue-500/5 transition-all flex justify-between items-center">
+              <div
+                key={company.id}
+                className="group bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-xl hover:shadow-blue-500/5 transition-all flex justify-between items-center"
+              >
                 <div className="flex items-center gap-4">
                   <div className="h-12 w-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-500 transition-colors">
                     <Building2 size={24} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">{company.name}</h3>
+                    <h3 className="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">
+                      {company.name}
+                    </h3>
                     {company.website ? (
-                      <a 
-                        href={company.website} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
+                      <a
+                        href={company.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="text-xs text-blue-500 hover:text-blue-600 font-medium flex items-center gap-1 mt-0.5"
                       >
                         <Globe size={12} />
-                        {company.website.replace(/^https?:\/\/(www\.)?/, '')}
+                        {company.website.replace(/^https?:\/\/(www\.)?/, "")}
                       </a>
                     ) : (
-                      <span className="text-[10px] text-slate-300 font-bold uppercase tracking-tighter">Sem website cadastrado</span>
+                      <span className="text-[10px] text-slate-300 font-bold uppercase tracking-tighter">
+                        Sem website cadastrado
+                      </span>
                     )}
                   </div>
                 </div>
-                
+
                 <button
                   onClick={() => handleDeleteClick(company)}
                   className="p-3 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all opacity-0 group-hover:opacity-100"
@@ -189,7 +207,9 @@ export default function CompaniesPage() {
               <Building2 size={32} />
             </div>
             <p className="text-slate-500 font-medium">Nenhuma empresa no radar ainda.</p>
-            <p className="text-slate-400 text-sm mt-1">Comece cadastrando uma nova empresa acima.</p>
+            <p className="text-slate-400 text-sm mt-1">
+              Comece cadastrando uma nova empresa acima.
+            </p>
           </div>
         )}
       </div>
@@ -203,13 +223,5 @@ export default function CompaniesPage() {
         confirmText="Excluir Permanentemente"
       />
     </div>
-  );
-}
-
-function PlusIcon({ size }: { size: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M5 12h14m-7-7v14" />
-    </svg>
   );
 }

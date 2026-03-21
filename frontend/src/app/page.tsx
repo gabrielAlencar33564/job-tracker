@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { getDashboardStats, getJobs } from "@/services/api";
+import { DashboardService, JobService } from "@/services";
 import { DashboardStats, Job, ApplicationStatus } from "@/types";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { StatusChart } from "@/components/dashboard/StatusChart";
@@ -23,7 +23,10 @@ export default function DashboardPage() {
 
   const loadData = useCallback(async () => {
     setLoading(true);
-    const [statsData, jobsData] = await Promise.all([getDashboardStats(), getJobs()]);
+    const [statsData, jobsData] = await Promise.all([
+      DashboardService.getDashboardStats(), 
+      JobService.getJobs()
+    ]);
 
     setStats(statsData);
     // Sort by creation date and take first 3
@@ -35,13 +38,12 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadData();
   }, [loadData]);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-100">
+      <div className="flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
       </div>
     );

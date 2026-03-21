@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { ApplicationStatus, Job } from "@/types";
 import { KanbanColumn } from "./KanbanColumn";
-import { getJobs, reorderJobs } from "@/services/api";
+import { JobService } from "@/services";
 import { JobCard } from "./JobCard";
 import {
   DndContext,
@@ -42,7 +42,7 @@ export function KanbanBoard() {
 
   const loadJobs = useCallback(async () => {
     try {
-      const data = await getJobs();
+      const data = await JobService.getJobs();
       setJobs(data);
     } catch (err) {
       setError("Erro ao carregar as vagas. Certifique-se que o backend está rodando.");
@@ -178,7 +178,7 @@ export function KanbanBoard() {
     });
 
     try {
-      const success = await reorderJobs(updates);
+      const success = await JobService.reorderJobs(updates);
       if (!success) {
         setJobs(previousJobs);
         setError("Falha ao salvar a nova ordem.");
