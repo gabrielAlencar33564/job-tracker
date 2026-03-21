@@ -20,6 +20,7 @@ CREATE TABLE "Job" (
     "expectedSalary" DOUBLE PRECISION,
     "appliedDate" TIMESTAMP(3) NOT NULL,
     "status" "ApplicationStatus" NOT NULL DEFAULT 'APPLIED',
+    "order" INTEGER NOT NULL DEFAULT 0,
     "companyId" UUID NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,

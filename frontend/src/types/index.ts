@@ -22,6 +22,7 @@ export interface Job {
   expectedSalary?: number | null;
   appliedDate: Date | string;
   status: ApplicationStatus;
+  order: number;
   companyId: string;
   company?: Company;
   createdAt: Date | string;

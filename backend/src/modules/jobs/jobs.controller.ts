@@ -11,10 +11,11 @@ import {
 import { JobsService } from './jobs.service';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
+import { ReorderJobsDto } from './dto/reorder-job.dto';
 
 @Controller('jobs')
 export class JobsController {
-  constructor(private readonly jobsService: JobsService) {}
+  constructor(private readonly jobsService: JobsService) { }
 
   @Post()
   create(@Body() createJobDto: CreateJobDto) {
@@ -29,6 +30,11 @@ export class JobsController {
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.jobsService.findOne(id);
+  }
+
+  @Patch('reorder')
+  reorder(@Body() body: ReorderJobsDto) {
+    return this.jobsService.reorderJobs(body.jobs);
   }
 
   @Patch(':id')

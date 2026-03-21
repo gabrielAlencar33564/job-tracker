@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Company } from '@/types';
+import { Company, ApplicationStatus } from '@/types';
 import { getCompanies, createJob } from '@/services/api';
 import Link from 'next/link';
 
@@ -30,35 +30,33 @@ export default function NewJobPage() {
     if (!title || !link || !companyId) return;
 
     setSubmitting(true);
-    const newJob = await createJob({
+    const result = await createJob({
       title,
       link,
-      expectedSalary: expectedSalary ? parseFloat(expectedSalary) : undefined,
+      expectedSalary: expectedSalary ? parseFloat(expectedSalary) : null,
       companyId,
       appliedDate: new Date().toISOString(),
+      status: ApplicationStatus.APPLIED,
     });
 
-    if (newJob) {
-      router.push('/jobs');
+    if (result) {
+      router.push('/');
     } else {
-      alert('Erro ao cadastrar vaga. Verifique se o backend está rodando e se a empresa existe.');
+      alert('Erro ao cadastrar vaga.');
     }
     setSubmitting(false);
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Nova Vaga</h1>
-          <p className="text-slate-500 mt-1">Preencha os dados da sua nova candidatura</p>
-        </div>
-        <Link href="/jobs" className="text-sm font-medium text-slate-500 hover:text-slate-700 transition-colors">
+    <div className="max-w-2xl mx-auto py-8">
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Nova Vaga</h1>
+        <Link href="/" className="text-sm font-semibold text-slate-500 hover:text-slate-700 transition-colors">
           Cancelar
         </Link>
       </div>
 
-      <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+      <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-1">
             <label className="text-xs font-bold text-slate-500 uppercase ml-1">Título da Vaga</label>
@@ -68,7 +66,7 @@ export default function NewJobPage() {
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Ex: Senior Frontend Engineer"
               required
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+              className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-lg"
             />
           </div>
 
@@ -80,7 +78,7 @@ export default function NewJobPage() {
               onChange={(e) => setLink(e.target.value)}
               placeholder="https://linkedin.com/jobs/..."
               required
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+              className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
             />
           </div>
 
@@ -92,20 +90,20 @@ export default function NewJobPage() {
                 value={expectedSalary}
                 onChange={(e) => setExpectedSalary(e.target.value)}
                 placeholder="Ex: 15000"
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
               />
             </div>
 
             <div className="space-y-1">
               <label className="text-xs font-bold text-slate-500 uppercase ml-1">Empresa</label>
               {loading ? (
-                <div className="h-[50px] bg-slate-100 animate-pulse rounded-xl"></div>
+                <div className="h-[52px] bg-slate-100 animate-pulse rounded-2xl"></div>
               ) : (
                 <select
                   value={companyId}
                   onChange={(e) => setCompanyId(e.target.value)}
                   required
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
                 >
                   <option value="">Selecione uma empresa</option>
                   {companies.map((company) => (
@@ -122,20 +120,18 @@ export default function NewJobPage() {
             <button
               type="submit"
               disabled={submitting || loading || !companyId}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold transition-all shadow-md shadow-blue-200 disabled:opacity-50 active:scale-[0.98]"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-bold text-lg transition-all shadow-lg shadow-blue-100 disabled:opacity-50 active:scale-[0.98]"
             >
-              {submitting ? 'Salvando vaga...' : 'Salvar Vaga'}
+              {submitting ? 'Cadastrando...' : 'Cadastrar Vaga'}
             </button>
           </div>
         </form>
       </div>
 
-      {companies.length === 0 && !loading && (
-        <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl text-amber-700 text-sm flex items-start gap-3">
-          <span>⚠️</span>
-          <div>
-            Você precisa cadastrar uma <Link href="/companies" className="font-bold underline">empresa</Link> primeiro antes de adicionar uma vaga.
-          </div>
+      {!loading && companies.length === 0 && (
+        <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-center gap-3 text-amber-700">
+          <span className="text-xl">⚠️</span>
+          <p className="text-sm font-medium">Você precisa cadastrar uma <Link href="/companies" className="underline font-bold">empresa</Link> primeiro.</p>
         </div>
       )}
     </div>
