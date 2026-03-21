@@ -1,0 +1,22 @@
+enum ApplicationStatus {
+  APPLIED
+  WAITING_REPLY
+  INTERVIEW
+  TECHNICAL_TEST
+  REJECTED
+  OFFER_RECEIVED
+}
+
+model Job {
+  id             String            @id @default(uuid()) @db.Uuid
+  title          String
+  link           String
+  expectedSalary Float?
+  appliedDate    DateTime
+  status         ApplicationStatus @default(APPLIED)
+  companyId      String            @db.Uuid
+  company        Company           @relation(fields: [companyId], references: [id])
+  notes          Note[]
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+}
