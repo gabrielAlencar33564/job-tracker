@@ -1,4 +1,4 @@
-import { ApplicationStatus, Job, Company, Note } from '@/types';
+import { ApplicationStatus, Job, Company, Note, DashboardStats } from '@/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
 
@@ -14,6 +14,17 @@ export async function getJobs(): Promise<Job[]> {
   } catch (error) {
     console.error("Erro ao buscar vagas:", error);
     return [];
+  }
+}
+
+export async function getDashboardStats(): Promise<DashboardStats | null> {
+  try {
+    const response = await fetch(`${API_URL}/jobs/stats`);
+    if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    console.error("Erro ao buscar estatísticas:", error);
+    return null;
   }
 }
 

@@ -27,6 +27,11 @@ export class JobsController {
     return this.jobsService.findAll();
   }
 
+  @Get('stats')
+  getStats() {
+    return this.jobsService.getDashboardStats();
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.jobsService.findOne(id);

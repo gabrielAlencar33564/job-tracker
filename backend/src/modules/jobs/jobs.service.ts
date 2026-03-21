@@ -91,6 +91,39 @@ export class JobsService {
     return await this.prisma.$transaction(updates);
   }
 
+  async getDashboardStats() {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const [totalJobs, statusCounts, recentJobsCount] = await Promise.all([
+      this.prisma.job.count(),
+      this.prisma.job.groupBy({
+        by: ['status'],
+        _count: {
+          status: true,
+        },
+      }),
+      this.prisma.job.count({
+        where: {
+          createdAt: {
+            gte: thirtyDaysAgo,
+          },
+        },
+      }),
+    ]);
+
+    const formattedStatusCounts = statusCounts.map((item) => ({
+      status: item.status,
+      count: item._count.status,
+    }));
+
+    return {
+      totalJobs,
+      statusCounts: formattedStatusCounts,
+      recentJobsCount,
+    };
+  }
+
   async remove(id: string) {
     try {
       return await this.prisma.job.delete({

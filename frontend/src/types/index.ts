@@ -7,6 +7,17 @@ export enum ApplicationStatus {
   OFFER_RECEIVED = 'OFFER_RECEIVED'
 }
 
+export interface StatusCount {
+  status: ApplicationStatus;
+  count: number;
+}
+
+export interface DashboardStats {
+  totalJobs: number;
+  statusCounts: StatusCount[];
+  recentJobsCount: number;
+}
+
 export interface Company {
   id: string;
   name: string;
