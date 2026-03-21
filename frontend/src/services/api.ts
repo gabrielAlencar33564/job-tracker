@@ -121,6 +121,18 @@ export async function createCompany(data: { name: string; website?: string | nul
   }
 }
 
+export async function deleteCompany(id: string): Promise<boolean> {
+  try {
+    const response = await fetch(`${API_URL}/companies/${id}`, {
+      method: 'DELETE',
+    });
+    return response.ok;
+  } catch (error) {
+    console.error("Erro ao deletar empresa:", error);
+    return false;
+  }
+}
+
 // NOTES
 export async function getNotesByJobId(jobId: string): Promise<Note[]> {
   try {
