@@ -61,7 +61,7 @@ export class JobsService {
           company: true,
         },
       });
-    } catch (error) {
+    } catch {
       throw new NotFoundException(`Job with ID ${id} not found`);
     }
   }
@@ -71,7 +71,7 @@ export class JobsService {
       return await this.prisma.job.delete({
         where: { id },
       });
-    } catch (error) {
+    } catch {
       throw new NotFoundException(`Job with ID ${id} not found`);
     }
   }

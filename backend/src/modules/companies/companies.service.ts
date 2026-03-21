@@ -45,7 +45,7 @@ export class CompaniesService {
         where: { id },
         data: updateCompanyDto,
       });
-    } catch (error) {
+    } catch {
       throw new NotFoundException(`Company with ID ${id} not found`);
     }
   }
@@ -55,7 +55,7 @@ export class CompaniesService {
       return await this.prisma.company.delete({
         where: { id },
       });
-    } catch (error) {
+    } catch {
       throw new NotFoundException(`Company with ID ${id} not found`);
     }
   }
