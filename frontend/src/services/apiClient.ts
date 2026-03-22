@@ -13,7 +13,6 @@ export async function apiFetch<T>(endpoint: string, options?: RequestInit): Prom
     throw new Error(`API Error: ${response.status} ${response.statusText}`);
   }
 
-  // Handle DELETE or other 204 responses
   if (response.status === 204 || response.headers.get('content-length') === '0') {
     return {} as T;
   }

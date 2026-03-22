@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { LayoutDashboard, Briefcase, Building2, LayoutGrid } from 'lucide-react';
 
 export function Sidebar() {
   return (
@@ -9,21 +10,31 @@ export function Sidebar() {
       <nav className="flex flex-col gap-2">
         <Link 
           href="/" 
-          className="p-3 hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-2"
+          className="p-3 hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-3 font-medium text-slate-300 hover:text-white"
         >
+          <LayoutDashboard size={20} />
           <span>Dashboard</span>
         </Link>
         <Link 
           href="/jobs" 
-          className="p-3 hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-2"
+          className="p-3 hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-3 font-medium text-slate-300 hover:text-white"
         >
+          <Briefcase size={20} />
           <span>Vagas</span>
         </Link>
         <Link 
           href="/companies" 
-          className="p-3 hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-2"
+          className="p-3 hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-3 font-medium text-slate-300 hover:text-white"
         >
+          <Building2 size={20} />
           <span>Empresas</span>
+        </Link>
+        <Link 
+          href="/job-boards" 
+          className="p-3 hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-3 font-medium text-slate-300 hover:text-white"
+        >
+          <LayoutGrid size={20} />
+          <span>Plataformas</span>
         </Link>
       </nav>
     </aside>

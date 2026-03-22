@@ -1,0 +1,8 @@
+model JobBoard {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  url       String
+  jobs      Job[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

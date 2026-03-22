@@ -2,29 +2,35 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Company, ApplicationStatus } from "@/types";
-import { CompanyService, JobService } from "@/services";
+import { Company, ApplicationStatus, JobBoard } from "@/types";
+import { CompanyService, JobService, JobBoardService } from "@/services";
 import { PageHeader, Input, Select, Button } from "@/components/common";
-import { Briefcase, ArrowLeft, Send, Link as LinkIcon, DollarSign } from "lucide-react";
+import { Briefcase, ArrowLeft, Send, Link as LinkIcon, DollarSign, Layout } from "lucide-react";
 import Link from "next/link";
 
 export default function NewJobPage() {
   const router = useRouter();
   const [companies, setCompanies] = useState<Company[]>([]);
+  const [jobBoards, setJobBoards] = useState<JobBoard[]>([]);
   const [title, setTitle] = useState("");
   const [link, setLink] = useState("");
   const [expectedSalary, setExpectedSalary] = useState("");
   const [companyId, setCompanyId] = useState("");
+  const [jobBoardId, setJobBoardId] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    async function loadCompanies() {
-      const data = await CompanyService.getCompanies();
-      setCompanies(data);
+    async function loadData() {
+      const [companiesData, jobBoardsData] = await Promise.all([
+        CompanyService.getCompanies(),
+        JobBoardService.getJobBoards()
+      ]);
+      setCompanies(companiesData);
+      setJobBoards(jobBoardsData);
       setLoading(false);
     }
-    loadCompanies();
+    loadData();
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -37,6 +43,7 @@ export default function NewJobPage() {
       link,
       expectedSalary: expectedSalary ? parseFloat(expectedSalary) : null,
       companyId,
+      jobBoardId: jobBoardId || undefined,
       appliedDate: new Date().toISOString(),
       status: ApplicationStatus.APPLIED,
     });
@@ -111,6 +118,16 @@ export default function NewJobPage() {
               options={companies.map((c) => ({ value: c.id, label: c.name }))}
               disabled={loading}
             />
+
+            <div className="md:col-span-2">
+              <Select
+                label="Origem da Vaga (Opcional)"
+                value={jobBoardId}
+                onChange={(e) => setJobBoardId(e.target.value)}
+                options={jobBoards.map((jb) => ({ value: jb.id, label: jb.name }))}
+                disabled={loading}
+              />
+            </div>
           </div>
 
           <div className="pt-6 flex justify-end border-t border-slate-100">
@@ -119,7 +136,7 @@ export default function NewJobPage() {
               isLoading={submitting}
               disabled={loading || !companyId}
               size="lg"
-              className="w-full md:w-auto min-w-50"
+              className="w-full md:w-auto min-w-[200px]"
               icon={<Send size={20} />}
             >
               Cadastrar Vaga

@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { ApplicationStatus, Job } from "@/types";
+import { ApplicationStatus, Job, Company } from "@/types";
 import { KanbanColumn } from "./KanbanColumn";
-import { JobService } from "@/services";
+import { JobService, CompanyService } from "@/services";
 import { JobCard } from "./JobCard";
+import { Input, Select } from "@/components/common";
+import { Search, X } from "lucide-react";
 import {
   DndContext,
   DragEndEvent,
@@ -28,9 +30,14 @@ const COLUMNS = [
 
 export function KanbanBoard() {
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
+
+  // Filter states
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCompany, setSelectedCompany] = useState("");
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -40,12 +47,17 @@ export function KanbanBoard() {
     }),
   );
 
-  const loadJobs = useCallback(async () => {
+  const loadData = useCallback(async () => {
     try {
-      const data = await JobService.getJobs();
-      setJobs(data);
+      setLoading(true);
+      const [jobsData, companiesData] = await Promise.all([
+        JobService.getJobs(),
+        CompanyService.getCompanies(),
+      ]);
+      setJobs(jobsData);
+      setCompanies(companiesData);
     } catch (err) {
-      setError("Erro ao carregar as vagas. Certifique-se que o backend está rodando.");
+      setError("Erro ao carregar dados. Certifique-se que o backend está rodando.");
       console.error(err);
     } finally {
       setLoading(false);
@@ -53,13 +65,30 @@ export function KanbanBoard() {
   }, []);
 
   useEffect(() => {
-    loadJobs();
-  }, [loadJobs]);
+    loadData();
+  }, [loadData]);
+
+  const filteredJobs = useMemo(() => {
+    return jobs.filter((job) => {
+      const matchesSearch =
+        job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.company?.name.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesCompany = selectedCompany ? job.companyId === selectedCompany : true;
+
+      return matchesSearch && matchesCompany;
+    });
+  }, [jobs, searchTerm, selectedCompany]);
 
   const activeJob = useMemo(
     () => jobs.find((j) => j.id === activeId) || null,
     [activeId, jobs],
   );
+
+  const clearFilters = () => {
+    setSearchTerm("");
+    setSelectedCompany("");
+  };
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
@@ -111,7 +140,6 @@ export function KanbanBoard() {
     const activeJobObj = jobs.find((j) => j.id === currentActiveId);
     if (!activeJobObj) return;
 
-    // Determine target status
     const isOverColumn = Object.values(ApplicationStatus).includes(
       overId as ApplicationStatus,
     );
@@ -124,7 +152,6 @@ export function KanbanBoard() {
 
     const previousJobs = [...jobs];
 
-    // We need to find where the item should be placed in the target column
     const targetColumnJobs = jobs
       .filter((j) => j.status === targetStatus && j.id !== currentActiveId)
       .sort((a, b) => a.order - b.order);
@@ -134,22 +161,17 @@ export function KanbanBoard() {
       newIndex = targetColumnJobs.length;
     } else {
       newIndex = targetColumnJobs.findIndex((j) => j.id === overId);
-      // If we are dropping below an item, we might want to increment index
-      // but arrayMove handles this if we include the active item
     }
 
-    // Create the updated target column list
     const finalTargetColumn = [...targetColumnJobs];
     finalTargetColumn.splice(newIndex, 0, { ...activeJobObj, status: targetStatus });
 
     const updates: { id: string; status: ApplicationStatus; order: number }[] = [];
 
-    // Add updates for target column
     finalTargetColumn.forEach((j, index) => {
       updates.push({ id: j.id, status: targetStatus, order: index });
     });
 
-    // If moved from another column, update that column's order too
     const sourceStatus = activeJobObj.status;
     if (sourceStatus !== targetStatus) {
       const sourceColumnJobs = jobs
@@ -161,7 +183,6 @@ export function KanbanBoard() {
       });
     }
 
-    // Optimistic Update
     setJobs((prev) => {
       const newState = [...prev];
       updates.forEach((update) => {
@@ -211,30 +232,64 @@ export function KanbanBoard() {
   }
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCorners}
-      onDragStart={handleDragStart}
-      onDragOver={handleDragOver}
-      onDragEnd={handleDragEnd}
-      onDragCancel={handleDragCancel}
-    >
-      <div className="mt-8 flex gap-6 overflow-x-auto pb-10 -mx-4 px-4 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent h-full min-h-125">
-        {COLUMNS.map((column) => (
-          <KanbanColumn
-            key={column.status}
-            id={column.status}
-            title={column.title}
-            jobs={jobs
-              .filter((job) => job.status === column.status)
-              .sort((a, b) => a.order - b.order)}
+    <div className="flex flex-col h-full">
+      <div className="flex flex-col md:flex-row items-end gap-4 mb-6 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+        <div className="flex-1 w-full">
+          <Input
+            label="Pesquisar Vagas"
+            placeholder="Título da vaga ou nome da empresa..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            icon={<Search size={18} />}
           />
-        ))}
+        </div>
+        <div className="w-full md:w-64">
+          <Select
+            label="Filtrar por Empresa"
+            value={selectedCompany}
+            onChange={(e) => setSelectedCompany(e.target.value)}
+            options={[
+              { value: "", label: "Todas as Empresas" },
+              ...companies.map((c) => ({ value: c.id, label: c.name })),
+            ]}
+          />
+        </div>
+        {(searchTerm || selectedCompany) && (
+          <button
+            onClick={clearFilters}
+            className="flex items-center gap-2 px-4 py-3 text-sm font-bold text-rose-600 hover:bg-rose-50 rounded-xl transition-all h-12.5"
+          >
+            <X size={18} />
+            Limpar
+          </button>
+        )}
       </div>
 
-      <DragOverlay adjustScale={false}>
-        {activeJob ? <JobCard job={activeJob} isOverlay /> : null}
-      </DragOverlay>
-    </DndContext>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCorners}
+        onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
+        onDragEnd={handleDragEnd}
+        onDragCancel={handleDragCancel}
+      >
+        <div className="flex gap-6 overflow-x-auto pb-10 -mx-4 px-4 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent flex-1">
+          {COLUMNS.map((column) => (
+            <KanbanColumn
+              key={column.status}
+              id={column.status}
+              title={column.title}
+              jobs={filteredJobs
+                .filter((job) => job.status === column.status)
+                .sort((a, b) => a.order - b.order)}
+            />
+          ))}
+        </div>
+
+        <DragOverlay adjustScale={false}>
+          {activeJob ? <JobCard job={activeJob} isOverlay /> : null}
+        </DragOverlay>
+      </DndContext>
+    </div>
   );
 }

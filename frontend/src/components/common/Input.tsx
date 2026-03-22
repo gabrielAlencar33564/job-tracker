@@ -6,7 +6,14 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   icon?: React.ReactNode;
 }
 
-export function Input({ label, error, icon: Icon, className = "", id, ...props }: InputProps) {
+export function Input({
+  label,
+  error,
+  icon: Icon,
+  className = "",
+  id,
+  ...props
+}: InputProps) {
   return (
     <div className={`space-y-1.5 w-full ${className}`}>
       {label && (
@@ -27,7 +34,7 @@ export function Input({ label, error, icon: Icon, className = "", id, ...props }
           id={id}
           className={`
             w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-slate-700 font-medium 
-            outline-none transition-all placeholder:text-slate-300
+            outline-none transition-all placeholder:text-slate-300 leading-tight
             focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500
             disabled:opacity-50 disabled:cursor-not-allowed
             ${Icon ? "pl-11" : ""}

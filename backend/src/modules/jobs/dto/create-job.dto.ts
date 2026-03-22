@@ -34,4 +34,8 @@ export class CreateJobDto {
   @IsUUID()
   @IsNotEmpty()
   companyId: string;
+
+  @IsOptional()
+  @IsUUID()
+  jobBoardId?: string;
 }

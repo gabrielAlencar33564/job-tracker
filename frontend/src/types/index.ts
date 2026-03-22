@@ -26,6 +26,14 @@ export interface Company {
   updatedAt: Date | string;
 }
 
+export interface JobBoard {
+  id: string;
+  name: string;
+  url: string;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
 export interface Job {
   id: string;
   title: string;
@@ -36,6 +44,8 @@ export interface Job {
   order: number;
   companyId: string;
   company?: Company;
+  jobBoardId?: string | null;
+  jobBoard?: JobBoard | null;
   _count?: {
     notes: number;
   };

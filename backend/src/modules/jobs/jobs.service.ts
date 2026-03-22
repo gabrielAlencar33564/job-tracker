@@ -28,6 +28,7 @@ export class JobsService {
       },
       include: {
         company: true,
+        jobBoard: true,
       },
     });
   }
@@ -36,6 +37,7 @@ export class JobsService {
     return this.prisma.job.findMany({
       include: {
         company: true,
+        jobBoard: true,
         _count: {
           select: { notes: true },
         },
@@ -49,6 +51,7 @@ export class JobsService {
       where: { id },
       include: {
         company: true,
+        jobBoard: true,
         notes: true,
       },
     });
