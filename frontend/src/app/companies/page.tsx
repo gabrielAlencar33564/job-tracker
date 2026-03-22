@@ -1,10 +1,10 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
+
 import { useState, useEffect, useCallback } from "react";
 import { Company } from "@/types";
 import { CompanyService } from "@/services";
-import { Trash2, Globe, Building2 } from "lucide-react";
-import { ConfirmModal } from "@/components/common/ConfirmModal";
+import { Trash2, Globe, Building2, Plus } from "lucide-react";
+import { PageHeader, Input, Button, ConfirmModal } from "@/components/common";
 
 export default function CompaniesPage() {
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -13,6 +13,7 @@ export default function CompaniesPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
+  // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [companyToDelete, setCompanyToDelete] = useState<Company | null>(null);
 
@@ -24,6 +25,7 @@ export default function CompaniesPage() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadCompanies();
   }, [loadCompanies]);
 
@@ -71,70 +73,46 @@ export default function CompaniesPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 py-4 animate-in fade-in duration-500">
-      <header className="flex items-center gap-4">
-        <div className="p-3 bg-blue-600 rounded-2xl text-white shadow-lg shadow-blue-200">
-          <Building2 size={32} />
-        </div>
-        <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-            Empresas
-          </h1>
-          <p className="text-slate-500 font-medium">
-            Gerencie seu radar de empresas e oportunidades.
-          </p>
-        </div>
-      </header>
+      <PageHeader
+        title="Empresas"
+        subtitle="Gerencie seu radar de empresas e oportunidades."
+        icon={<Building2 size={32} />}
+      />
 
       <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
-        <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-          Cadastrar Nova Empresa
-        </h2>
+        <h2 className="text-xl font-bold text-slate-800 mb-6">Cadastrar Nova Empresa</h2>
         <form
           onSubmit={handleSubmit}
           className="grid grid-cols-1 md:grid-cols-12 gap-6 items-end"
         >
-          <div className="md:col-span-5 space-y-2">
-            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">
-              Nome da Organização
-            </label>
-            <input
-              type="text"
+          <div className="md:col-span-5">
+            <Input
+              label="Nome da Organização"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Ex: Google, Nubank, Stripe..."
               required
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-700 font-medium outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-300"
             />
           </div>
-          <div className="md:col-span-5 space-y-2">
-            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">
-              Website Oficial
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-300">
-                <Globe size={18} />
-              </div>
-              <input
-                type="url"
-                value={website}
-                onChange={(e) => setWebsite(e.target.value)}
-                placeholder="https://suaempresa.com"
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-slate-700 font-medium outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-slate-300"
-              />
-            </div>
+          <div className="md:col-span-5">
+            <Input
+              label="Website Oficial"
+              type="url"
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
+              placeholder="https://suaempresa.com"
+              icon={<Globe size={18} />}
+            />
           </div>
           <div className="md:col-span-2">
-            <button
+            <Button
               type="submit"
-              disabled={submitting}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3.5 rounded-xl font-bold transition-all shadow-lg shadow-blue-100 disabled:opacity-50 flex items-center justify-center gap-2"
+              isLoading={submitting}
+              className="w-full h-12.5"
+              icon={<Plus size={20} />}
             >
-              {submitting ? (
-                <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                "Salvar"
-              )}
-            </button>
+              Salvar
+            </Button>
           </div>
         </form>
       </div>
@@ -191,13 +169,15 @@ export default function CompaniesPage() {
                   </div>
                 </div>
 
-                <button
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => handleDeleteClick(company)}
-                  className="p-3 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all opacity-0 group-hover:opacity-100"
+                  className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-rose-600 hover:bg-rose-50"
                   title="Excluir Empresa"
                 >
                   <Trash2 size={20} />
-                </button>
+                </Button>
               </div>
             ))}
           </div>

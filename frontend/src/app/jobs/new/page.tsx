@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Company, ApplicationStatus } from "@/types";
 import { CompanyService, JobService } from "@/services";
+import { PageHeader, Input, Select, Button } from "@/components/common";
+import { Briefcase, ArrowLeft, Send, Link as LinkIcon, DollarSign } from "lucide-react";
 import Link from "next/link";
 
 export default function NewJobPage() {
@@ -40,7 +42,7 @@ export default function NewJobPage() {
     });
 
     if (result) {
-      router.push("/");
+      router.push("/jobs");
     } else {
       alert("Erro ao cadastrar vaga.");
     }
@@ -48,107 +50,102 @@ export default function NewJobPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto py-8">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Nova Vaga</h1>
-        <Link
-          href="/"
-          className="text-sm font-semibold text-slate-500 hover:text-slate-700 transition-colors"
-        >
-          Cancelar
-        </Link>
-      </div>
+    <div className="max-w-3xl mx-auto py-4 space-y-8 animate-in fade-in duration-500">
+      <PageHeader
+        title="Nova Vaga"
+        subtitle="Adicione uma nova oportunidade ao seu radar."
+        icon={<Briefcase size={32} />}
+        actions={
+          <Link href="/jobs">
+            <Button variant="ghost" icon={<ArrowLeft size={18} />}>
+              Voltar ao Kanban
+            </Button>
+          </Link>
+        }
+      />
 
-      <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-500 uppercase ml-1">
-              Título da Vaga
-            </label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Ex: Senior Frontend Engineer"
-              required
-              className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-lg"
-            />
-          </div>
+      <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-8 opacity-5">
+          <Briefcase size={120} />
+        </div>
 
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-500 uppercase ml-1">
-              Link da Vaga
-            </label>
-            <input
-              type="url"
-              value={link}
-              onChange={(e) => setLink(e.target.value)}
-              placeholder="https://linkedin.com/jobs/..."
-              required
-              className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 uppercase ml-1">
-                Salário Esperado
-              </label>
-              <input
-                type="number"
-                value={expectedSalary}
-                onChange={(e) => setExpectedSalary(e.target.value)}
-                placeholder="Ex: 15000"
-                className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+        <form onSubmit={handleSubmit} className="space-y-8 relative">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="md:col-span-2">
+              <Input
+                label="Título da Vaga"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Ex: Senior Frontend Engineer"
+                required
+                className="text-lg"
               />
             </div>
 
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 uppercase ml-1">
-                Empresa
-              </label>
-              {loading ? (
-                <div className="h-13 bg-slate-100 animate-pulse rounded-2xl"></div>
-              ) : (
-                <select
-                  value={companyId}
-                  onChange={(e) => setCompanyId(e.target.value)}
-                  required
-                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer"
-                >
-                  <option value="">Selecione uma empresa</option>
-                  {companies.map((company) => (
-                    <option key={company.id} value={company.id}>
-                      {company.name}
-                    </option>
-                  ))}
-                </select>
-              )}
+            <div className="md:col-span-2">
+              <Input
+                label="Link da Candidatura"
+                type="url"
+                value={link}
+                onChange={(e) => setLink(e.target.value)}
+                placeholder="https://linkedin.com/jobs/..."
+                required
+                icon={<LinkIcon size={18} />}
+              />
             </div>
+
+            <Input
+              label="Salário Esperado (Opcional)"
+              type="number"
+              value={expectedSalary}
+              onChange={(e) => setExpectedSalary(e.target.value)}
+              placeholder="Ex: 15000"
+              icon={<DollarSign size={18} />}
+            />
+
+            <Select
+              label="Empresa Vinculada"
+              value={companyId}
+              onChange={(e) => setCompanyId(e.target.value)}
+              required
+              options={companies.map((c) => ({ value: c.id, label: c.name }))}
+              disabled={loading}
+            />
           </div>
 
-          <div className="pt-4">
-            <button
+          <div className="pt-6 flex justify-end border-t border-slate-100">
+            <Button
               type="submit"
-              disabled={submitting || loading || !companyId}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-bold text-lg transition-all shadow-lg shadow-blue-100 disabled:opacity-50 active:scale-[0.98]"
+              isLoading={submitting}
+              disabled={loading || !companyId}
+              size="lg"
+              className="w-full md:w-auto min-w-50"
+              icon={<Send size={20} />}
             >
-              {submitting ? "Cadastrando..." : "Cadastrar Vaga"}
-            </button>
+              Cadastrar Vaga
+            </Button>
           </div>
         </form>
       </div>
 
       {!loading && companies.length === 0 && (
-        <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-center gap-3 text-amber-700">
-          <span className="text-xl">⚠️</span>
-          <p className="text-sm font-medium">
-            Você precisa cadastrar uma{" "}
-            <Link href="/companies" className="underline font-bold">
-              empresa
-            </Link>{" "}
-            primeiro.
-          </p>
+        <div className="p-5 bg-amber-50 border border-amber-200 rounded-2xl flex items-center gap-4 text-amber-800 shadow-sm">
+          <div className="bg-amber-100 p-2 rounded-xl">
+            <Briefcase size={20} />
+          </div>
+          <div>
+            <p className="text-sm font-bold leading-none mb-1">Empresa não encontrada</p>
+            <p className="text-xs font-medium opacity-80">
+              Você precisa cadastrar uma{" "}
+              <Link
+                href="/companies"
+                className="underline font-black hover:text-amber-950 transition-colors"
+              >
+                empresa
+              </Link>{" "}
+              antes de adicionar uma vaga.
+            </p>
+          </div>
         </div>
       )}
     </div>

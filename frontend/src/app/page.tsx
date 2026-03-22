@@ -5,6 +5,7 @@ import { DashboardService, JobService } from "@/services";
 import { DashboardStats, Job, ApplicationStatus } from "@/types";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { StatusChart } from "@/components/dashboard/StatusChart";
+import { PageHeader, Button } from "@/components/common";
 import {
   Briefcase,
   Send,
@@ -13,6 +14,7 @@ import {
   Clock,
   ArrowRight,
   PlusCircle,
+  BarChart3,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -24,12 +26,12 @@ export default function DashboardPage() {
   const loadData = useCallback(async () => {
     setLoading(true);
     const [statsData, jobsData] = await Promise.all([
-      DashboardService.getDashboardStats(), 
-      JobService.getJobs()
+      DashboardService.getDashboardStats(),
+      JobService.getJobs(),
     ]);
 
     setStats(statsData);
-    // Sort by creation date and take first 3
+
     const sortedJobs = [...jobsData]
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .slice(0, 3);
@@ -43,7 +45,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex items-center justify-center min-h-100">
         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
       </div>
     );
@@ -57,23 +59,16 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-            Dashboard de Métricas
-          </h1>
-          <p className="text-slate-500 font-medium mt-1">
-            Acompanhe seu progresso na busca por oportunidades.
-          </p>
-        </div>
-        <Link
-          href="/jobs/new"
-          className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-blue-200"
-        >
-          <PlusCircle size={20} />
-          Nova Candidatura
-        </Link>
-      </div>
+      <PageHeader
+        title="Dashboard de Métricas"
+        subtitle="Acompanhe seu progresso na busca por oportunidades."
+        icon={<BarChart3 size={32} />}
+        actions={
+          <Link href="/jobs/new">
+            <Button icon={<PlusCircle size={20} />}>Nova Candidatura</Button>
+          </Link>
+        }
+      />
 
       {/* Stats Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
