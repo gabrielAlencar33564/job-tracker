@@ -2,7 +2,7 @@ model Note {
   id        String   @id @default(uuid()) @db.Uuid
   content   String   @db.Text
   jobId     String   @db.Uuid
-  job       Job      @relation(fields: [jobId], references: [id])
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

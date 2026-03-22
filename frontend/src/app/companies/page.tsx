@@ -25,7 +25,6 @@ export default function CompaniesPage() {
   }, []);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadCompanies();
   }, [loadCompanies]);
 

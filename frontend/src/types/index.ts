@@ -36,6 +36,9 @@ export interface Job {
   order: number;
   companyId: string;
   company?: Company;
+  _count?: {
+    notes: number;
+  };
   createdAt: Date | string;
   updatedAt: Date | string;
 }
