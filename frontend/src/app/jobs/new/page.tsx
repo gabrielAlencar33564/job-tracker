@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Company, ApplicationStatus, JobBoard } from "@/types";
 import { CompanyService, JobService, JobBoardService } from "@/services";
 import { PageHeader, Input, Select, Button } from "@/components/common";
-import { Briefcase, ArrowLeft, Send, Link as LinkIcon, DollarSign, Layout } from "lucide-react";
+import { Briefcase, ArrowLeft, Send, Link as LinkIcon, DollarSign } from "lucide-react";
 import Link from "next/link";
 
 export default function NewJobPage() {
@@ -24,7 +24,7 @@ export default function NewJobPage() {
     async function loadData() {
       const [companiesData, jobBoardsData] = await Promise.all([
         CompanyService.getCompanies(),
-        JobBoardService.getJobBoards()
+        JobBoardService.getJobBoards(),
       ]);
       setCompanies(companiesData);
       setJobBoards(jobBoardsData);
@@ -136,7 +136,7 @@ export default function NewJobPage() {
               isLoading={submitting}
               disabled={loading || !companyId}
               size="lg"
-              className="w-full md:w-auto min-w-[200px]"
+              className="w-full md:w-auto min-w-50"
               icon={<Send size={20} />}
             >
               Cadastrar Vaga

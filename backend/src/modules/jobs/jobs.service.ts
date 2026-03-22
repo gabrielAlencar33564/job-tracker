@@ -98,7 +98,7 @@ export class JobsService {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const [totalJobs, statusCounts, recentJobsCount] = await Promise.all([
+    const [totalJobs, statusCounts, recentJobsCount, jobBoardCounts, interviewByBoardCounts, jobBoards] = await Promise.all([
       this.prisma.job.count(),
       this.prisma.job.groupBy({
         by: ['status'],
@@ -113,6 +113,22 @@ export class JobsService {
           },
         },
       }),
+      this.prisma.job.groupBy({
+        by: ['jobBoardId'],
+        _count: {
+          jobBoardId: true,
+        },
+      }),
+      this.prisma.job.groupBy({
+        by: ['jobBoardId'],
+        where: {
+          status: 'INTERVIEW',
+        },
+        _count: {
+          jobBoardId: true,
+        },
+      }),
+      this.prisma.jobBoard.findMany(),
     ]);
 
     const formattedStatusCounts = statusCounts.map((item) => ({
@@ -120,10 +136,49 @@ export class JobsService {
       count: item._count.status,
     }));
 
+    // Map Job Board Volume Stats
+    const jobBoardVolumeStats = jobBoardCounts.map((item) => {
+      const board = jobBoards.find(jb => jb.id === item.jobBoardId);
+      return {
+        jobBoardId: item.jobBoardId,
+        jobBoardName: board ? board.name : 'Origem não definida',
+        count: item._count.jobBoardId || totalJobs - jobBoardCounts.reduce((acc, curr) => acc + (curr._count.jobBoardId || 0), 0),
+      };
+    });
+
+    // Need to handle the 'null' case more explicitly for volume if needed, 
+    // but Prisma groupBy with null jobBoardId already returns one entry with null.
+    // Let's refine the labels.
+    const refinedVolumeStats = jobBoardCounts.map(item => {
+      const board = jobBoards.find(jb => jb.id === item.jobBoardId);
+      return {
+        jobBoardId: item.jobBoardId,
+        jobBoardName: board ? board.name : 'Direto / Outros',
+        count: item._count.jobBoardId,
+      };
+    });
+
+    // Map Job Board Conversion Stats
+    const jobBoardConversionStats = jobBoardCounts.map((item) => {
+      const board = jobBoards.find(jb => jb.id === item.jobBoardId);
+      const interviewCount = interviewByBoardCounts.find(i => i.jobBoardId === item.jobBoardId)?._count.jobBoardId || 0;
+      const totalForBoard = item._count.jobBoardId;
+      
+      return {
+        jobBoardId: item.jobBoardId,
+        jobBoardName: board ? board.name : 'Direto / Outros',
+        totalJobs: totalForBoard,
+        interviewJobs: interviewCount,
+        conversionRate: totalForBoard > 0 ? (interviewCount / totalForBoard) * 100 : 0,
+      };
+    }).sort((a, b) => b.conversionRate - a.conversionRate);
+
     return {
       totalJobs,
       statusCounts: formattedStatusCounts,
       recentJobsCount,
+      jobBoardVolumeStats: refinedVolumeStats,
+      jobBoardConversionStats,
     };
   }
 

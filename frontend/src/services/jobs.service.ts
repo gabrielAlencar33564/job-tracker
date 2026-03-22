@@ -25,6 +25,7 @@ export async function createJob(data: {
   expectedSalary?: number | null;
   companyId: string;
   appliedDate: string;
+  jobBoardId?: string;
   status: ApplicationStatus;
 }): Promise<Job | null> {
   try {
@@ -50,7 +51,7 @@ export async function updateJobStatus(id: string, newStatus: ApplicationStatus):
   }
 }
 
-export async function reorderJobs(data: { id: string; order: number; status: ApplicationStatus }[]): Promise<boolean> {
+export async function reorderJobs(data: { id: string; order: number; status: ApplicationStatus; }[]): Promise<boolean> {
   try {
     await apiFetch('/jobs/reorder', {
       method: 'PATCH',

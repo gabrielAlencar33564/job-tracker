@@ -12,10 +12,26 @@ export interface StatusCount {
   count: number;
 }
 
+export interface JobBoardVolumeStat {
+  jobBoardId: string | null;
+  jobBoardName: string;
+  count: number;
+}
+
+export interface JobBoardConversionStat {
+  jobBoardId: string | null;
+  jobBoardName: string;
+  conversionRate: number;
+  totalJobs: number;
+  interviewJobs: number;
+}
+
 export interface DashboardStats {
   totalJobs: number;
   statusCounts: StatusCount[];
   recentJobsCount: number;
+  jobBoardVolumeStats: JobBoardVolumeStat[];
+  jobBoardConversionStats: JobBoardConversionStat[];
 }
 
 export interface Company {

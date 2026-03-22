@@ -5,8 +5,24 @@ export class StatusCountDto {
   count: number;
 }
 
+export class JobBoardVolumeStatDto {
+  jobBoardId: string | null;
+  jobBoardName: string;
+  count: number;
+}
+
+export class JobBoardConversionStatDto {
+  jobBoardId: string | null;
+  jobBoardName: string;
+  conversionRate: number; // percentage of jobs that reached INTERVIEW status
+  totalJobs: number;
+  interviewJobs: number;
+}
+
 export class DashboardStatsDto {
   totalJobs: number;
   statusCounts: StatusCountDto[];
-  recentJobsCount: number; // created in last 30 days
+  recentJobsCount: number;
+  jobBoardVolumeStats: JobBoardVolumeStatDto[];
+  jobBoardConversionStats: JobBoardConversionStatDto[];
 }
