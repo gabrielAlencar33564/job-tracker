@@ -11,7 +11,6 @@ export class JobsService {
   async create(createJobDto: CreateJobDto) {
     const { appliedDate, ...rest } = createJobDto;
 
-    // Get max order in the column
     const maxOrderJob = await this.prisma.job.findFirst({
       where: { status: createJobDto.status },
       orderBy: { order: 'desc' },
@@ -136,19 +135,6 @@ export class JobsService {
       count: item._count.status,
     }));
 
-    // Map Job Board Volume Stats
-    const jobBoardVolumeStats = jobBoardCounts.map((item) => {
-      const board = jobBoards.find(jb => jb.id === item.jobBoardId);
-      return {
-        jobBoardId: item.jobBoardId,
-        jobBoardName: board ? board.name : 'Origem não definida',
-        count: item._count.jobBoardId || totalJobs - jobBoardCounts.reduce((acc, curr) => acc + (curr._count.jobBoardId || 0), 0),
-      };
-    });
-
-    // Need to handle the 'null' case more explicitly for volume if needed, 
-    // but Prisma groupBy with null jobBoardId already returns one entry with null.
-    // Let's refine the labels.
     const refinedVolumeStats = jobBoardCounts.map(item => {
       const board = jobBoards.find(jb => jb.id === item.jobBoardId);
       return {
@@ -158,12 +144,11 @@ export class JobsService {
       };
     });
 
-    // Map Job Board Conversion Stats
     const jobBoardConversionStats = jobBoardCounts.map((item) => {
       const board = jobBoards.find(jb => jb.id === item.jobBoardId);
       const interviewCount = interviewByBoardCounts.find(i => i.jobBoardId === item.jobBoardId)?._count.jobBoardId || 0;
       const totalForBoard = item._count.jobBoardId;
-      
+
       return {
         jobBoardId: item.jobBoardId,
         jobBoardName: board ? board.name : 'Direto / Outros',

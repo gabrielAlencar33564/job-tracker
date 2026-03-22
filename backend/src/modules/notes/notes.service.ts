@@ -4,10 +4,9 @@ import { CreateNoteDto } from './dto/create-note.dto';
 
 @Injectable()
 export class NotesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(createNoteDto: CreateNoteDto) {
-    // Verify if job exists
     const job = await this.prisma.job.findUnique({
       where: { id: createNoteDto.jobId },
     });
